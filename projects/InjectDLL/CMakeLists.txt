@@ -19,6 +19,7 @@ set(
 	"features/map.cpp"
 	"features/goal_mode_check.cpp"
 	"features/invert_swim.cpp"
+	"features/quest_watcher.cpp"
 	"fixes/dash.cpp"
 	"fixes/flap.cpp"
 	"pickups/pickups.cpp"

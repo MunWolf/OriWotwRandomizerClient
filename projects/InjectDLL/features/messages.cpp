@@ -3,10 +3,11 @@
 #include <dll_main.h>
 
 #include <set>
+#include <vector>
 
-BINDING(30218144, __int64, String_GetCharArray, (__int64))//System.String$$ToCharArray
-BINDING(34816240, int, Array_get_Count, (__int64)) //System.Array$$get_Length
-BINDING(34805712, __int64, Array_GetValue, (__int64, int index)) //System.Array$$GetValue
+BINDING(30218144, System_Char_array*, String_GetCharArray, (System_String_o* str))//System.String$$ToCharArray
+BINDING(34816240, int, Array_get_Count, (System_Char_array* arr)) //System.Array$$get_Length
+BINDING(34805712, Il2CppObject*, Array_GetValue, (System_Char_array* arr, int index)) //System.Array$$GetValue
 
 BINDING(13847344, MessageBox_o*, MessageControllerB__ShowHintSmallMessage, (MessageControllerB_o* this_ptr, MessageDescriptor_o descriptor, UnityEngine_Vector3_o position, float duration));
 BINDING(5621248, UnityEngine_Vector3_o, OnScreenPositions__get_TopCenter, ());
@@ -18,6 +19,28 @@ BINDING(0x262520, uint32_t, il2cpp_gchandle_new_weakref, (Il2CppObject* obj, boo
 BINDING(0x262540, Il2CppObject*, il2cpp_gc_get_target, (uint32_t gchandle))
 BINDING(0x262560, uint32_t, il2cpp_gchandle_free, (uint32_t gchandle))
 
+std::string convert_csstring(System_String_o* str)
+{
+    if (str != 0)
+    {
+        System_Char_array* chars = String_GetCharArray(str);
+        if (chars != 0)
+        {
+            auto size = Array_get_Count(chars);
+            std::vector<char> str(size);
+            for (int i = 0; i < size; ++i)
+            {
+                auto charStructPointer = Array_GetValue(chars, i);
+                str[i] = *reinterpret_cast<char*>(charStructPointer + 0x10);
+            }
+
+            return std::string(str.data(), str.size());
+        }
+    }
+
+    return "";
+}
+
 namespace
 {
     std::set<MessageBox_o*> tracked_boxes;
@@ -25,27 +48,6 @@ namespace
     bool string_header_cached = false;
     System_String_o* last_message = nullptr;
     uint32_t last_handle = 0;
-
-    void print_csstring(__int64 str)
-    {
-        if (str != 0)
-        {
-            __int64 chars = String_GetCharArray(str);
-            if (chars != 0)
-            {
-                auto size = Array_get_Count(chars);
-                auto str = new char[size];
-                for (int i = 0; i < size; ++i)
-                {
-                    auto charStructPointer = Array_GetValue(chars, i);
-                    str[i] = *reinterpret_cast<char*>(charStructPointer + 0x10);
-                }
-
-                log(str);
-                delete[] str;
-            }
-        }
-    }
 
     // nullcheck helper
     bool is_visible(MessageBox_o* box)
